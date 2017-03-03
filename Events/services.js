@@ -3,7 +3,9 @@ var createEvent = function(req) {
   // TODO (zachlefevre): Write method and remove console.log().
   console.log(req);
   // TODO :(zachlefevre): Replace return object with an object containing the event UID of the newly created event.
-  return req;
+  return {
+    "eventUid": 123456789
+  };
 }
 
 // This function returns an object containing the event represented by the event UID.
@@ -14,12 +16,12 @@ var getEventByID = function(req) {
   return {
     "event": {
       "category" : "ENUM/STRING",
-      "contact" : "STRING",
-      "creator" : "USERUID",
-      "datetime" : "DATE-TIME STRING",
-      "description" : "STRING",
-      "location" : "STRING",
-      "title" : "STRING"
+      "contact" : "John Doe",
+      "creator" : 987654321,
+      "datetime" : "December 25 2012",
+      "description" : "Description of the holidays",
+      "location" : "Holden Hall",
+      "title" : "The Holidays"
     }
   };
 }
@@ -28,8 +30,9 @@ var getEventByID = function(req) {
 var deleteEvent = function(req) {
   // TODO (zachlefevre): Write method and remove console.log().
   console.log(req);
-  // TODO (zlefevre): Remove this return statement.
-  return req;
+  return {
+    "deleted": true
+  };
 }
 
 // Returns an object containing every event.

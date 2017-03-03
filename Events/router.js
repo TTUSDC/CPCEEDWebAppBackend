@@ -4,8 +4,7 @@ var eventRouter = express.Router();
 
 eventRouter.post('/', (req, res) => {
   var response = eventService.createEvent(req.body);
-  res.send(response);
-  // TODO (zachlefevre): Send an HTTP status corresponding to CREATED.
+  res.status(201).send(response);
 });
 
 eventRouter.get('/:eventuid', (req, res) => {
@@ -15,8 +14,7 @@ eventRouter.get('/:eventuid', (req, res) => {
 
 eventRouter.delete('/:eventuid', (req, res) => {
   var response = eventService.deleteEvent(req.params);
-  res.send(response);
-  // TODO (zachlefevre): Send an HTTP status corresponding to DELETED.
+  res.status(200).send(response);
 })
 
 eventRouter.get('/', (req, res) => {
