@@ -5,7 +5,7 @@ var eventRouter = express.Router();
 eventRouter.post('/', (req, res) => {
   var response = eventService.createEvent(req.body);
   res.send(response);
-  //TODO (zachlefevre): Send an HTTP status corresponding to CREATED.
+  // TODO (zachlefevre): Send an HTTP status corresponding to CREATED.
 });
 
 eventRouter.get('/:eventuid', (req, res) => {
