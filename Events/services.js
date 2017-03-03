@@ -1,15 +1,15 @@
-// This function return a json containing the eventuid of the newly created event.
+// This function return an object containing the eventuid of the newly created event.
 var createEvent = function(req) {
   console.log(req);
 
   // TODO (zachlefevre): Write method and remove console.log().
-  return req; // This will be replaced with a json containing the eventuid of the newly created event.
+  return req; // This will be replaced with an object containing the eventuid of the newly created event.
 }
 
-// This function returns a json containing the event represented by the eventuid.
+// This function returns an object containing the event represented by the eventuid.
 var getEventByID = function(req) {
-  console.log(req);
   // TODO (zachlefevre): Write method and remove console.log.
+  console.log(req);
   return {
     "event": {
       "category" : "ENUM/STRING",
@@ -20,24 +20,24 @@ var getEventByID = function(req) {
       "location" : "STRING",
       "title" : "STRING"
 }
-    }; // This will be replaced with a json containing the event represented by the eventuid.
+    }; // This will be replaced with an object containing the event represented by the eventuid.
 }
 
 // This function deletes the event represented by the eventuid.
 var deleteEvent = function(req) {
-  console.log(req);
   // TODO (zachlefevre): Write method and remove console.log().
+  console.log(req);
   return req; // This will be removed.
 }
 
-// Returns a json containing every event.
+// Returns an object containing every event.
 var getAllEvents = function() {
-  console.log("getAllEvents");
   // TODO (zachlefevre): Write method and remove console.log().
+  console.log("getAllEvents");
   return {
     "event1": 1234,
     "event2": 4312
-  } // This will be replaced with a json containing every event.
+  } // This will be replaced with an object containing every event.
 }
 
 
