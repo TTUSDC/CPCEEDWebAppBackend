@@ -9,7 +9,7 @@ eventRouter.post('/', (req, res) => {
 
 eventRouter.get('/:eventuid', (req, res) => {
   var response = eventService.getEventByID(req.params);
-  res.send(response);
+  res.status(200).send(response);
 })
 
 eventRouter.delete('/:eventuid', (req, res) => {
@@ -19,7 +19,7 @@ eventRouter.delete('/:eventuid', (req, res) => {
 
 eventRouter.get('/', (req, res) => {
   var response = eventService.getAllEvents()
-  res.send(response);
+  res.status(200).send(response);
 })
 
 module.exports = { eventRouter };
