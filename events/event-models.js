@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
-var eventSchema = new mongoose.Schema({
+var eventSchema = new Schema({
   category : String,
   contact : String,
   creator : String,
@@ -10,6 +11,6 @@ var eventSchema = new mongoose.Schema({
   title : String
 });
 
-var Event = mongoose.model('eventModel', eventSchema, 'events');
+var Event = mongoose.model('Event', eventSchema, 'events');
 
 module.exports = { eventModel };
