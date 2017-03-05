@@ -1,7 +1,19 @@
+var eventModels = require('./event-models.js');
+var Event = eventModels.Event;
 // This function return an object containing the event UID of the newly created event.
-var createEvent = function(req) {
-  // TODO (zachlefevre): Write method and remove console.log().
-  console.log(req);
+var createEvent = function(reqData, locals, createCallback) {
+  var event = new Event({
+    category: reqData.category,
+    contact: reqData.contact ,
+    creator: reqData.creator,
+    datetime: new Date(reqData.datetime),
+    description: reqData.description,
+    location: reqData.location,
+    title: reqData.title
+  });
+
+  event.save(createCallback)
+
   // TODO :(zachlefevre): Replace return object with an object containing the event UID of the newly created event.
   return {
     "eventUid": 123456789
@@ -9,7 +21,7 @@ var createEvent = function(req) {
 }
 
 // This function returns an object containing the event represented by the event UID.
-var getEventByID = function(req) {
+var getEventByID = function(req, locals, queryCallback) {
   // TODO (zachlefevre): Write method and remove console.log.
   console.log(req);
    // TODO (zachlefevre): Replace the return object with an object containing the event represented by the event UID.
@@ -27,7 +39,7 @@ var getEventByID = function(req) {
 }
 
 // This function deletes the event represented by the event UID.
-var deleteEvent = function(req) {
+var deleteEvent = function(req, locals, deleteCallback) {
   // TODO (zachlefevre): Write method and remove console.log().
   console.log(req);
   return {
@@ -36,7 +48,7 @@ var deleteEvent = function(req) {
 }
 
 // Returns an object containing every event.
-var getAllEvents = function() {
+var getAllEvents = function(locals, queryCallback) {
   // TODO (zachlefevre): Write method and remove console.log().
   console.log("getAllEvents");
    // TODO (zachlefevre): Replace the return object with an object containing every event.
