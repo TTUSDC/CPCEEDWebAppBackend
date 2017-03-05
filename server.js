@@ -2,7 +2,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var user = require('./Users/router.js');
-var event = require('./Events/router.js');
+var event = require('./events/event-router.js');
 var report = require('./Reports/router.js');
 var app = express();
 var port = process.env.PORT || 8080;
