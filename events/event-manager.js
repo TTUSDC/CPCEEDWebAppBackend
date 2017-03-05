@@ -14,9 +14,8 @@ var createEvent = function(reqData, locals, createCallback) {
 
   event.save(createCallback)
 
-  // TODO :(zachlefevre): Replace return object with an object containing the event UID of the newly created event.
   return {
-    "eventUid": 123456789
+    "eventUid": event.id
   };
 }
 
