@@ -35,7 +35,7 @@ var createReport = (reqData, locals, createCallback) => {
       approvalStatus: false,
       student: reqData.student,
       category: reqData.category,
-      datetime: reqData.datetime,
+      datetime: new Date(reqData.datetime),
       location: reqData.location,
       title: reqData.title,
       description: reqData.description,
@@ -87,7 +87,8 @@ var modifyReport = (reportUid, reqData, locals, modifyCallback) => {
     } else if (report.type == OtherReport.modelName) {
       // Fields specific to other reports.
       report.category = newIfPresent(reqData.category, report.category);
-      report.datetime = newIfPresent(reqData.datetime, report.datetime);
+      report.datetime = 
+          new Date(newIfPresent(reqData.datetime, report.datetime));
       report.location = newIfPresent(reqData.location, report.location);
       report.title = newIfPresent(reqData.title, report.title);
       report.description =
