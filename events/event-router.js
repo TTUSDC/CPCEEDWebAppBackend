@@ -19,7 +19,7 @@ eventRouter.post('/', (req, res) => {
 });
 
 eventRouter.get('/:eventuid', (req, res) => {
-  var response = eventService.getEventByID(req.params, {}, (err, event) => {
+  eventService.getEventByID(req.params.eventuid, req.body, {}, (err, event) => {
     if (err){
       //TODO (zachlefevre): Complete error handling.
       res.status(400).send(err).end();
@@ -30,12 +30,12 @@ eventRouter.get('/:eventuid', (req, res) => {
       message: 'getEventByID succesful',
       id: event.id
     })
+    res.status(200).send(event).end();
   });
-  res.status(200).send(response);
 })
 
 eventRouter.delete('/:eventuid', (req, res) => {
-  var response = eventService.deleteEvent(req.params, {}, (err, event) => {
+  var response = eventService.deleteEvent(req.params.eventuid, req.body, {}, (err, event) => {
     if (err){
       //TODO (zachlefevre): Complete error handling.
       res.status(400).send(err).end();
@@ -48,11 +48,10 @@ eventRouter.delete('/:eventuid', (req, res) => {
     })
     res.status(201).send(response);
   });
-  res.status(200).send(response);
 })
 
 eventRouter.get('/', (req, res) => {
-  var response = eventService.getAllEvents({}, (err, event) => {
+  var response = eventService.getAllEvents(req.body, {}, (err, event) => {
     if (err){
       //TODO (zachlefevre): Complete error handling.
       res.status(400).send(err).end();
@@ -65,7 +64,6 @@ eventRouter.get('/', (req, res) => {
     })
     res.status(201).send(response);
   });
-  res.status(200).send(response);
 })
 
 module.exports = { eventRouter };
