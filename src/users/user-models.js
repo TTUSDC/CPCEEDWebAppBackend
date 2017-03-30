@@ -1,13 +1,12 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var options = {discriminatorKey: 'type'};
+var options = {discriminatorKey: 'role'};
 
 var userSchema = new Schema({
       firstName: String,
       lastName: String,
       email: String,
-      role: String,
     },
     options);
 
