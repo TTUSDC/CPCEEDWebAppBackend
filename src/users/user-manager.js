@@ -38,54 +38,83 @@ var createUser = (reqData, createCallback) => {
     });
 
   } else {
-  // TODO(ryanfaulkenberry100): Handle error case where role is incorrect.
+  // TODO(ryanfaulkenberry100): Better error handling for invalid user roles
+  createCallback({message: "Invalid user role"});
+  return;
   }
 
-  // TODO(ryanfaulkenberry100): Write user to database.
-
-  return new response.ResponseObject(201, {"uid":"1", "url":"//www.google.com"});
-  // TODO(ryanfaulkenberry100): Return actual data.
-}
+  user.save(createCallback);
+  return new response.ResponseObject(200);
+};
 
 var modifyUser = (userUid, reqData, modifyCallback) => {
-  // TODO(ryanfaulkenberry100): Check if modifier is a user or an admin.
-  if (/*modifying user is student*/ true) {
-    modifyUserAsSelf(userUid, reqData, modifyCallback);
-  } else if (/*modifying user is admin*/ false) {
-    modifyUserAsAdmin(userUid, reqData, modifyCallback);
-  } else {
-    // TODO(ryanfaulkenberry100): Handle errors.
-  }
+  User.findById(userUid, (err, user) => {
+    if (err) {
+      modifyCallback(err);
+      return;
+    }
 
-  return new response.ResponseObject(200, {"url":"//www.google.com"});
-  // TODO(ryanfaulkenberry100): Return actual data.
-}
+    // If the modifying user's UID does not match the updatee's UID, and
+    // the modifying user is not an admin, the user should not be modified.
+    // TODO(ryanfaulkenberry100): Check if the above conditions exist.
 
-var deleteUser = (userUid) => {
-  // TODO(ryanfaulkenberry100): Delete the specified user and remove console.log.
-  console.log(userUid);
+    // Ensure the fields are defined, then reset each field to it's
+    // corresponding request value if it's not null.
 
-  return new response.ResponseObject(200, {"url":"//www.google.com"});
-  // TODO(ryanfaulkenberry100): Return actual data.
-}
+    // Fields shared by all users.
+    user.firstName = newIfPresent(reqData.firstName, user.firstName);
+    user.lastName = newIfPresent(reqData.lastName, user.lastName);
+    user.email = newIfPresent(reqData.email, user.email);
 
-var getUser = (userUid) => {
-  // Returns a user.
+    if (user.role == userModels.modelName) {
+      // Fields specific to students.
+      user.approvalStatus =
+          newIfPresent(reqData.approvalStatus, user.approvalStatus);
+      user.points = newIfPresent(reqData.points, user.points);
+      user.studentId = newIfPresent(reqData.studentId, user.studentId);
+    }
 
-  // TODO(ryanfaulkenberry100): Find the user and remove placeholder User variable.
-  var User = new Admin({
-    // Placeholder
-    email: "nobody@gmail.com",
-    firstName: "John",
-    lastName: "Doe",
-    role: "Admin"
+    report.save(modifyCallback);
   });
+  return new response.ResponseObject(200);
+};
 
-  return new response.ResponseObject(200, User);
-  // TODO(ryanfaulkenberry100): Return actual data.
-}
+var deleteUser = (userUid, deleteCallback) => {
+  User.findById(userUid, (err, user) => {
+    if (err) {
+      deleteCallback(err);
+      return;
+    }
 
-var modifyUserAsSelf = (userUid, reqData, modifyCallback) => {}
-var modifyUserAsAdmin = (userUid, reqData, modifyCallback) => {}
+    if (!user) {
+      // TODO(ryanfaulkenberry100): Better error handling.
+      deleteCallback({message: 'Report not found.'});
+      return;
+    }
+
+    // If the deleting user's UID does not match the deletee's UID, and
+    // the deleting user is not an admin, the user should not be deleted.
+    // TODO(ryanfaulkenberry100): Check if the above conditions exist.
+
+    user.remove(deleteCallback);
+  });
+  return new response.ResponseObject(200);
+};
+
+var getUser = (userUid, queryCallback) => {
+  User.findById(userUid, (err, user) => {
+    if (err) {
+      queryCallback(err);
+      return;
+    }
+
+    // If the requesting user's UID does not match the queree's UID, and
+    // the requesting user is not an admin, the user should not be returned.
+    // TODO(ryanfaulkenberry100): Check if the above conditions exist.
+
+    queryCallback(err, user);
+  });
+  return new response.ResponseObject(200);
+};
 
 module.exports = { createUser, modifyUser, deleteUser, getUser };
