@@ -1,98 +1,122 @@
-const mongoose = require("mongoose");
-const mockgoose = require("mockgoose");
-const assert = require("assert");
-const chai = require("chai");
+const mockgoose = require('mockgoose');
+const mongoose = require('mongoose');
+const chai = require('chai');
+const chaiMoment = require('chai-moment');
+const userManager = require('../../src/users/user-manager');
+const userModels = require('../../src/users/user-models');
+
 const expect = chai.expect;
-chai.use(require('chai-moment'));
+const should = chai.should();
+const Admin = userModels.Admin;
+const Student = userModels.Student;
+const User = userModels.User;
+
+chai.use(chaiMoment);
 mockgoose(mongoose);
 
-const userManager = require('../../src/users/user-manager.js');
-const userModels = require('../../src/users/user-models.js');
-const studentModel = userModels.Student;
-const adminModel = userModels.Admin;
-
 describe('userManager', () => {
-  // Start mockgoose mock
+  // Connect to the database.
   before((done) => { mongoose.connect('', done); });
 
-  // Reinitialize the database before each case
+  // Clear the database before each test case.
   beforeEach((done) => {
     mockgoose.reset();
-    done;
+    done();
   });
 
   after((done) => { mongoose.unmock(done); });
 
-  describe('#createUser', () => {
-    it('should pass a created studnet to the callback', (done) => {
+  describe('#createStudent', () => {
+    it('should pass a uid to the callback', (done) => {
       const student = {
-        approvalStatus: false,
-        email: 'e@mail.com',
-        firstName: 'Morty',
-        lastName: 'Applesauce',
-        points: {
-          career: 0,
-          community: 0,
-          firstother: 0,
-          firstworkshops: 0,
-          mentor: 0,
-          other: 0,
-          outreach: 0,
-          professor: 0,
-          staff: 0,
-          misc: 0
-        },
+        email: 'test@test.com',
+        password: 'P@ssw0rd!',
+        firstName: 'Test',
+        lastName: 'User',
         role: 'Student',
-        studentId: 'randomUID'
+        studentId: '',
       };
 
-      userManager.createUser(student, (err, createdUser) => {
-        expect(err).to.be.null;
-        expect(createdUser.approvalStatus).to.be.false;
-        expect(createdUser.email).to.be.equal(student.email);
-        expect(createdUser.firstName).to.be.equal(student.firstName);
-        expect(createdUser.lastName).to.be.equal(student.lastName);
-        expect(createdUser.points).to.be.equal(student.points);
-        expect(createdUser.role).to.be.equal('Student');
-        expect(createdUser.studentId).to.be.equal(student.Id);
+      userManager.createUser(student, (createErr, uid) => {
+        expect(createErr).to.be.null;
+        expect(uid).to.be.a('string');
 
-        User.findById(createdUser.id, (err, foundUser) => {
-          expect(err).to.be.null;
-          expect(foundUser.approvalStatus).to.be.false;
-          expect(foundUser.email).to.be.equal(student.email);
-          expect(foundUser.firstName).to.be.equal(student.firstName);
-          expect(foundUser.lastName).to.be.equal(student.lastName);
-          expect(foundUser.points).to.be.equal(student.points);
-          expect(foundUser.role).to.be.equal('Student');
-          expect(foundUser.studentId).to.be.equal(student.Id);
+        Student.findById(uid, (studentErr, foundStudent) => {
+          expect(studentErr).to.be.null;
+          expect(foundStudent.isApproved).to.be.false;
+          expect(foundStudent.email).to.be.equal(student.email);
+          expect(foundStudent.firstName).to.be.equal(student.firstName);
+          expect(foundStudent.lastName).to.be.equal(student.lastName);
+          expect(foundStudent.role).to.be.equal(student.role);
+          expect(foundStudent.studentId).to.be.equal(student.studentId);
+          foundStudent.comparePassword(student.password, (passwordErr, isMatch) => {
+            expect(isMatch).to.be.true;
+          });
           done();
         });
       });
     });
 
-    it('should pass a created admin to the callback', (done) => {
-      const admin = {
-        firstName: 'Holden',
-        lastName: 'McGroin',
-        email: 'hm@email.com',
-        role: 'Admin'
+    it('should pass an error to the callback', (done) => {
+      const student = {
+        email: 'test@test.com',
+        firstName: 'Test',
+        lastName: 'User',
+        role: 'Student',
+        studentId: '',
       };
 
-      userManager.createUser(admin, (err, createdUser) => {
-        expect(err).to.be.null;
-        expect(createdUser.firstName).to.be.equal(admin.firstName);
-        expect(createdUser.lastName).to.be.equal(admin.lastName);
-        expect(createdUser.email).to.be.equal(admin.email);
-        expect(createdUser.role).to.be.equal('Admin');
+      userManager.createUser(student, (createErr, uid) => {
+        should.exist(createErr);
+        should.not.exist(uid);
+        done();
+      });
+    });
+  });
 
-        User.findById(createdUser.id, (err, foundUser) => {
-          expect(err).to.be.null;
-          expect(foundUser.email).to.be.equal(admin.email);
-          expect(foundUser.firstName).to.be.equal(admin.firstName);
-          expect(foundUser.lastName).to.be.equal(admin.lastName);
-          expect(foundUser.role).to.be.equal('Admin');
+  describe('#createAdmin', () => {
+    it('should pass a uid to the callback', (done) => {
+      const admin = {
+        email: 'test@test.com',
+        password: 'P@ssw0rd!',
+        firstName: 'Test',
+        lastName: 'User',
+        role: 'Admin',
+      };
+
+      userManager.createUser(admin, (createErr, uid) => {
+        expect(createErr).to.be.null;
+        expect(uid).to.be.a('string');
+
+        Admin.findById(uid, (studentErr, foundStudent) => {
+          expect(studentErr).to.be.null;
+          expect(foundStudent.isApproved).to.be.false;
+          expect(foundStudent.email).to.be.equal(admin.email);
+          expect(foundStudent.firstName).to.be.equal(admin.firstName);
+          expect(foundStudent.lastName).to.be.equal(admin.lastName);
+          expect(foundStudent.role).to.be.equal(admin.role);
+          expect(foundStudent.studentId).to.be.equal(admin.studentId);
+          foundStudent.comparePassword(admin.password, (passwordErr, isMatch) => {
+            expect(isMatch).to.be.true;
+          });
           done();
         });
+      });
+    });
+
+    it('should pass an error to the callback', (done) => {
+      const admin = {
+        email: 'test@test.com',
+        firstName: 'Test',
+        lastName: 'User',
+        role: 'Student',
+        studentId: '',
+      };
+
+      userManager.createUser(admin, (createErr, uid) => {
+        should.exist(createErr);
+        should.not.exist(uid);
+        done();
       });
     });
   });
@@ -114,10 +138,10 @@ describe('userManager', () => {
           outreach: 0,
           professor: 0,
           staff: 0,
-          misc: 0
+          misc: 0,
         },
         role: 'Student',
-        studentId: 'randomUID'
+        studentId: 'randomUID',
       });
 
       const updatedStudent = {
@@ -135,17 +159,17 @@ describe('userManager', () => {
           outreach: 7,
           professor: 8,
           staff: 9,
-          misc: 10
+          misc: 10,
         },
         role: 'Student',
-        studentId: 'randomUID'
-      }
+        studentId: 'randomUID',
+      };
 
       originalStudent.save((err, createdUser) => {
         expect(err).to.be.null;
         userManager.modifyUser(
-          createdUser.id, updatedStudent, (err, actualUpdatedStudent) => {
-            expect(err).to.be.null;
+          createdUser.id, updatedStudent, (Modifyerr, actualUpdatedStudent) => {
+            expect(Modifyerr).to.be.null;
             expect(actualUpdatedStudent.approvalStatus)
               .to.be.equal(updatedStudent.approvalStatus);
             expect(actualUpdatedStudent.email)
@@ -166,37 +190,38 @@ describe('userManager', () => {
     });
 
     it('should pass a modified user to the callback', (done) => {
-      const originalAdmin  = new Admin({
+      const originalAdmin = new Admin({
         firstName: 'Holden',
         lastName: 'McGroin',
         email: 'hm@email.com',
-        role: 'Admin'
+        role: 'Admin',
       });
 
       const updatedAdmin = {
         firstName: 'Alex',
         lastName: 'Jones',
         email: 'alex@jones.com',
-        role: 'Admin'
+        role: 'Admin',
       };
 
       originalAdmin.save((err, createdUser) => {
         expect(err).to.be.null;
         userManager.modifyUser(
-          createdUser.id, updatedAdmin, (err, actualUpdatedAdmin) => {
-            expect(err).to.be.null;
+          createdUser.id, updatedAdmin, (Modifyerr, actualUpdatedAdmin) => {
+            expect(Modifyerr).to.be.null;
             expect(actualUpdatedAdmin.firstName)
               .to.be.equal(updatedAdmin.firstName);
             expect(actualUpdatedAdmin.lastName)
               .to.be.equal(updatedAdmin.lastName);
             expect(actualUpdatedAdmin.email).to.be.equal(updatedAdmin.email);
             expect(actualUpdatedAdmin.role).to.be.equal('Admin');
+            done();
           });
       });
     });
   });
 
-  describe('#deleteUser', (done) => {
+  describe('#deleteUser', () => {
     it('should delete the Student', (done) => {
       const student = new Student({
         approvalStatus: false,
@@ -213,19 +238,19 @@ describe('userManager', () => {
           outreach: 0,
           professor: 0,
           staff: 0,
-          misc: 0
+          misc: 0,
         },
         role: 'Student',
-        studentId: 'randomUID'
+        studentId: 'randomUID',
       });
 
       student.save((err, createdUser) => {
         expect(err).to.be.null;
         userManager.deleteUser(
-          createdUser.id, (err, deletedUser) => {
-            expect(err).to.be.null;
+          createdUser.id, (createErr, deletedUser) => {
+            expect(createErr).to.be.null;
             expect(deletedUser.approvalStatus)
-              .to.be.equal(student.approvalStatus)
+              .to.be.equal(student.approvalStatus);
             expect(deletedUser.email).to.be.equal(student.email);
             expect(deletedUser.firstName).to.be.equal(student.firstName);
             expect(deletedUser.lastName).to.be.equal(student.lastName);
@@ -233,33 +258,35 @@ describe('userManager', () => {
             expect(deletedUser.role).to.be.equal('Student');
             expect(deletedUser.studentId).to.be.equal(student.studentId);
 
-            User.findById(createdUser.id, (err, foundUser) => {
-              expect(foundReport).to.be.null;
+            User.findById(createdUser.id, (findErr, foundUser) => {
+              expect(findErr).to.be.null;
+              expect(foundUser).to.be.null;
               done();
             });
           });
       });
     });
 
-    it('should delete the admin', (done) => {
+    it('should delete the Admin', (done) => {
       const admin = new Admin({
         firstName: 'Holden',
         lastName: 'McGroin',
         email: 'hm@email.com',
-        role: 'Admin'
+        role: 'Admin',
       });
 
       admin.save((err, createdUser) => {
         expect(err).to.be.null;
         userManager.deleteUser(
-          createdUser.id, (err, deletedUser) => {
-            expect(err).to.be.null;
+          createdUser.id, (createErr, deletedUser) => {
+            expect(createErr).to.be.null;
             expect(deletedUser.firstName).to.be.equal(admin.firstName);
-            expect(deleteUser.lastName).to.be.equal(admin.lastName);
-            expect(deleteUser.email).to.be.equal(admin.email);
-            expect(deleteUser.role).to.be.equal('Admin');
+            expect(deletedUser.lastName).to.be.equal(admin.lastName);
+            expect(deletedUser.email).to.be.equal(admin.email);
+            expect(deletedUser.role).to.be.equal('Admin');
 
-            User.findById(createdUser.id, (err, foundUser) => {
+            User.findById(createdUser.id, (findErr, foundUser) => {
+              expect(findErr).to.be.null;
               expect(foundUser).to.be.null;
               done();
             });
@@ -268,7 +295,7 @@ describe('userManager', () => {
     });
   });
 
-  describe('#getUser', (done) => {
+  describe('#getUser', () => {
     it('should pass the student with the given id to the callback', (done) => {
       const student = new Student({
         approvalStatus: false,
@@ -285,16 +312,16 @@ describe('userManager', () => {
           outreach: 0,
           professor: 0,
           staff: 0,
-          misc: 0
+          misc: 0,
         },
         role: 'Student',
-        studentId: 'randomUID'
+        studentId: 'randomUID',
       });
 
       student.save((err, createdUser) => {
         expect(err).to.be.null;
-        userManager.getUser(createdUser.id, (err, foundUser) => {
-          expect(err).to.be.null;
+        userManager.getUser(createdUser.id, (queryErr, foundUser) => {
+          expect(queryErr).to.be.null;
           expect(foundUser.approvalStatus).to.be.equal(student.approvalStatus);
           expect(foundUser.email).to.be.equal(student.email);
           expect(foundUser.firstName).to.be.equal(student.firstName);
@@ -312,13 +339,13 @@ describe('userManager', () => {
         firstName: 'Holden',
         lastName: 'McGroin',
         email: 'hm@email.com',
-        role: 'Admin'
+        role: 'Admin',
       });
 
       admin.save((err, createdUser) => {
         expect(err).to.be.null;
-        userManager.getUser(createdUser.id, (err, foundUser) => {
-          expect(err).to.be.null;
+        userManager.getUser(createdUser.id, (queryErr, foundUser) => {
+          expect(queryErr).to.be.null;
           expect(foundUser.email).to.be.equal(admin.email);
           expect(foundUser.firstName).to.be.equal(admin.firstName);
           expect(foundUser.lastName).to.be.equal(admin.lastName);
