@@ -64,45 +64,85 @@ const createUser = (data, next) => {
   });
 };
 
-var modifyUser = (userUid, reqData, modifyCallback) => {
-  // TODO(ryanfaulkenberry100): Check if modifier is a user or an admin.
-  if ( /*modifying user is student*/ true) {
-    modifyUserAsSelf(userUid, reqData, modifyCallback);
-  } else if ( /*modifying user is admin*/ false) {
-    modifyUserAsAdmin(userUid, reqData, modifyCallback);
-  } else {
-    // TODO(ryanfaulkenberry100): Handle errors.
+// modifyUser helper function
+const newIfPresent = (newValue, oldValue) => {
+  if (newValue === undefined || newValue == null) {
+    return oldValue;
   }
+  return newValue;
+};
 
-  return new response.ResponseObject(200, { "url": "//www.google.com" });
-  // TODO(ryanfaulkenberry100): Return actual data.
-}
+const modifyUser = (userUid, reqData, modifyCallback) => {
+  User.findById(userUid, (err, user) => {
+    if (err) {
+      modifyCallback(err);
+      return;
+    }
 
-var deleteUser = (userUid) => {
-  // TODO(ryanfaulkenberry100): Delete the specified user and remove console.log.
-  console.log(userUid);
+    // Const, but user fields may change.
+    const updatedUser = user;
 
-  return new response.ResponseObject(200, { "url": "//www.google.com" });
-  // TODO(ryanfaulkenberry100): Return actual data.
-}
+    // If the modifying user's UID does not match the updatee's UID, and
+    // the modifying user is not an admin, the user should not be modified.
+    // TODO(ryanfaulkenberry100): Check if the above conditions exist.
 
-var getUser = (userUid) => {
-  // Returns a user.
+    // Ensure the fields are defined, then reset each field to it's
+    // corresponding request value if it's not null.
 
-  // TODO(ryanfaulkenberry100): Find the user and remove placeholder User variable.
-  var User = new Admin({
-    // Placeholder
-    email: "nobody@gmail.com",
-    firstName: "John",
-    lastName: "Doe",
-    role: "Admin",
+    // Fields shared by all users.
+    updatedUser.firstName = newIfPresent(reqData.firstName, user.firstName);
+    updatedUser.lastName = newIfPresent(reqData.lastName, user.lastName);
+    updatedUser.email = newIfPresent(reqData.email, user.email);
+
+    if (user.role === 'Student') {
+      // Fields specific to students.
+      updatedUser.approvalStatus =
+          newIfPresent(reqData.approvalStatus, user.approvalStatus);
+      updatedUser.points = newIfPresent(reqData.points, user.points);
+      updatedUser.studentId = newIfPresent(reqData.studentId, user.studentId);
+    }
+
+    updatedUser.save(modifyCallback);
   });
+  return new response.ResponseObject(200);
+};
 
-  return new response.ResponseObject(200, User);
-  // TODO(ryanfaulkenberry100): Return actual data.
-}
+const deleteUser = (userUid, deleteCallback) => {
+  User.findById(userUid, (err, user) => {
+    if (err) {
+      deleteCallback(err);
+      return;
+    }
 
-var modifyUserAsSelf = (userUid, reqData, modifyCallback) => {}
-var modifyUserAsAdmin = (userUid, reqData, modifyCallback) => {}
+    if (!user) {
+      // TODO(ryanfaulkenberry100): Better error handling.
+      deleteCallback({ message: 'User not found.' });
+      return;
+    }
+
+    // If the deleting user's UID does not match the deletee's UID, and
+    // the deleting user is not an admin, the user should not be deleted.
+    // TODO(ryanfaulkenberry100): Check if the above conditions exist.
+
+    user.remove(deleteCallback);
+  });
+  return new response.ResponseObject(200);
+};
+
+const getUser = (userUid, queryCallback) => {
+  User.findById(userUid, (err, user) => {
+    if (err) {
+      queryCallback(err);
+      return;
+    }
+
+    // If the requesting user's UID does not match the queree's UID, and
+    // the requesting user is not an admin, the user should not be returned.
+    // TODO(ryanfaulkenberry100): Check if the above conditions exist.
+
+    queryCallback(err, user);
+  });
+  return new response.ResponseObject(200);
+};
 
 module.exports = { createUser, modifyUser, deleteUser, getUser };

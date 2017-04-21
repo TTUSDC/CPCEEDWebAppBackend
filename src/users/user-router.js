@@ -16,7 +16,7 @@ userRouter.post('/', (req, res) => {
 });
 
 userRouter.put('/:uid', (req, res) => {
-  var response = userManager.modifyUser(req.params.uid, req.body, (err) => {
+  const response = userManager.modifyUser(req.params.uid, req.body, (err) => {
     if (err) {
       res.status(400).send(err).end();
       return;
@@ -27,14 +27,14 @@ userRouter.put('/:uid', (req, res) => {
 
 // Delete User.
 userRouter.delete('/:uid', (req, res) => {
-  var response = userManager.deleteUser(req.params.uid);
+  const response = userManager.deleteUser(req.params.uid);
 
   res.status(200).json(response.object);
 });
 
 // Get User.
 userRouter.get('/:uid', (req, res) => {
-  var response = userManager.getUser(req.params.uid);
+  const response = userManager.getUser(req.params.uid);
 
   res.status(200).json(response.object);
 });
